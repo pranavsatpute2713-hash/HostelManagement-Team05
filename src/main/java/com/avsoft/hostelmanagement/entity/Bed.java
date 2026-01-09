@@ -2,6 +2,8 @@ package com.avsoft.hostelmanagement.entity;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,8 +28,9 @@ public class Bed {
 	private String bedNo;
 	private String status;
 
-	private String price;
+	private double price;
 	private int sharing;
+    private Long deposit;
 
 	private boolean booked;
 	private LocalDate bookedFrom;
@@ -36,5 +38,7 @@ public class Bed {
 
 	@ManyToOne
 	@JoinColumn(name = "room_id")
+	@JsonIgnore
 	private Room room;
+	
 }

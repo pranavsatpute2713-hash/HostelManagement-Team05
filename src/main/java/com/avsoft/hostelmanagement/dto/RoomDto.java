@@ -16,9 +16,11 @@ public class RoomDto {
     private String type;
     private String status;
     private Double pricePerBed;
-    private Boolean attachedBathroom;
-    private Boolean balcony;
+    private int sharing;
 
     // We only need the ID to link it, not the whole Floor object
     private Long floorId;
+
+
+
 }

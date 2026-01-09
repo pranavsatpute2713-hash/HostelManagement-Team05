@@ -1,5 +1,6 @@
 package com.avsoft.hostelmanagement.serviceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.avsoft.hostelmanagement.dto.RoomDto;
+import com.avsoft.hostelmanagement.entity.Bed;
 import com.avsoft.hostelmanagement.entity.Floor;
 import com.avsoft.hostelmanagement.entity.Room;
 import com.avsoft.hostelmanagement.exceptionHandler.FloorServiceException;
@@ -45,8 +47,57 @@ public class RoomServiceImpl implements RoomService {
 		return mapToDto(savedRoom);
 		
 	}
-
+	
 	@Override
+	public List<Room> saveRooms(List<RoomDto> roomDto) {
+
+	    List<Room> savedRooms = new ArrayList<>();
+
+	    for (RoomDto dto : roomDto) {
+
+	        Room room = new Room();
+	        room.setRoomNo(dto.getRoomNo());
+	        room.setType(dto.getType());
+	        room.setStatus(dto.getStatus());
+	        room.setPricePerBed(dto.getPricePerBed());
+
+     
+	        Floor floor = floorRepository.findById(dto.getFloorId()).orElse(null);
+
+	        if (floor == null) {
+	            throw new RuntimeException("Floor not found");
+	        }
+
+	        room.setFloor(floor);
+
+	        List<Bed> beds = new ArrayList<>();
+
+	        for (int i = 1; i <= dto.getSharing(); i++) {
+
+	            Bed bed = new Bed();
+	            bed.setBedNo("Bed-" + i);
+	            bed.setStatus("AVAILABLE");
+	            bed.setPrice(dto.getPricePerBed());
+	            bed.setSharing(dto.getSharing());
+
+	            bed.setRoom(room);
+
+	            beds.add(bed);
+	        }
+
+	        room.setBeds(beds);
+
+	        Room savedRoom = roomRepository.save(room);
+
+	        savedRooms.add(savedRoom);
+	    }
+
+	    return savedRooms;
+	    
+	}
+
+
+    @Override
 	public RoomDto getRoomById(Long id) {
 		
 		Room room = roomRepository.findById(id).orElseThrow(() -> new RoomServiceException("Room not found with id: " + id,HttpStatus.NOT_FOUND));
@@ -82,8 +133,7 @@ public class RoomServiceImpl implements RoomService {
 		if(dto.getType() != null) existing.setType(dto.getType());
 		if(dto.getPricePerBed() !=null) existing.setPricePerBed(dto.getPricePerBed());
 		if(dto.getStatus() !=null) existing.setStatus(dto.getStatus());
-		if(dto.getAttachedBathroom() != null) existing.setAttachedBathroom(dto.getAttachedBathroom());
-		if(dto.getBalcony() !=null) existing.setBalcony(dto.getBalcony());
+
 		
 		Room updatedRoom = roomRepository.save(existing);
 		return mapToDto(updatedRoom);
